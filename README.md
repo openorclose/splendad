@@ -1,5 +1,5 @@
 # splendad
-A group of three ex-NUS OSS students embark on a side project
+A group of three NUS OSS students embark on a side project
 
 ## To set up
 
