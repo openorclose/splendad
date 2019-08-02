@@ -1,0 +1,26 @@
+{
+  "name": "splendad",
+  "version": "0.0.1",
+  "description": "A group of three ex-NUS OSS students embark on a side project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \"**/*.{js,html}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openorclose/splendad.git"
+  },
+  "keywords": [
+    "splendad"
+  ],
+  "author": "Alfred Daryl Deborah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/openorclose/splendad/issues"
+  },
+  "homepage": "https://github.com/openorclose/splendad#readme",
+  "dependencies": {
+    "prettier": "^1.18.2"
+  }
+}
