@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - 10
+cache: npm
+branches:
+  except:
+    - /^no-ci.*$/
+script:
+  - npm run format:ci
+  - npm run lint
