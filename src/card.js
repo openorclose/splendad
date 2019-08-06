@@ -7,7 +7,10 @@ class Card {
   }
 
   toString() {
-    return `T${this.tier} ${Symbol.keyFor(this.color)}(${this.points})`;
+    return (
+      `T${this.tier} ${Symbol.keyFor(this.color)}(${this.points})` +
+      Array.from(this.cost.values())
+    );
   }
 }
 

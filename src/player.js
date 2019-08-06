@@ -1,4 +1,5 @@
 const { blankTokenMap } = require("./util.js");
+
 class Player {
   constructor(id, name) {
     this.id = id;
@@ -12,7 +13,7 @@ class Player {
   }
 
   addTokens(tokens) {
-    for (let i of tokens) {
+    for (const i of tokens) {
       console.log(i);
     }
   }

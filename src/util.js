@@ -1,6 +1,7 @@
 const Card = require("./card.js");
 const Color = require("./color.js");
 const Combo = require("./combo.js");
+
 const colors = [Color.Red, Color.Green, Color.Blue, Color.White, Color.Black];
 
 const config = {
@@ -23,6 +24,61 @@ const config = {
     }
   ]
 };
+
+function blankTokenMap() {
+  const map = new Map();
+  // TODO
+  for (const i in colors) {
+    map.set(colors[i], 0);
+  }
+  return map;
+}
+
+function rand(min, max) {
+  return Math.round(Math.random() * (max - min)) + min;
+}
+
+function randomColor() {
+  return colors[rand(0, colors.length - 1)];
+}
+
+function randomColors(n) {
+  const tempColors = [...colors];
+  for (let i = tempColors.length; i > n; i--) {
+    tempColors.splice(rand(0, tempColors.length - 1), 1);
+  }
+  return tempColors;
+}
+
+function randomCardOfTier(tier) {
+  const { points, cost, maxCost } = config.tier[tier - 1];
+  const finalCost = blankTokenMap();
+  const colorTypes = randomColors(rand(1, 4));
+  colorTypes.forEach(color => {
+    const item = finalCost.get(color);
+    finalCost.set(color, item + 1);
+  });
+
+  // console.log(finalCost);
+  let totalCost = rand(cost[0], cost[1]);
+  totalCost -= colorTypes.length;
+  while (totalCost > 0) {
+    const color = colorTypes[rand(0, colorTypes.length - 1)];
+    const currValue = finalCost.get(color);
+    if (currValue < maxCost) {
+      finalCost.set(color, currValue + 1);
+      totalCost -= 1;
+    }
+
+    if (colorTypes.length === 1 && currValue === maxCost) break;
+  }
+  return new Card(tier, randomColor(), finalCost, rand(points[0], points[1]));
+}
+
+function randomCard() {
+  const tier = rand(1, config.tier.length);
+  return randomCardOfTier(tier);
+}
 
 function generateDeck() {
   const deck = new Map();
@@ -55,52 +111,6 @@ function populateCombos() {
     combos.push(new Combo(blankTokenMap(), 3));
   }
   return combos;
-}
-
-function randomCard() {
-  const tier = rand(1, config.tier.length);
-  return randomCardOfTier(tier);
-}
-
-function randomCardOfTier(tier) {
-  ({ points, cost, maxCost } = config.tier[tier - 1]);
-  const finalCost = blankTokenMap();
-  const colorTypes = rand(1, 4);
-  for (let i = 0; i < colorTypes; i++) {}
-
-  return new Card(
-    tier,
-    randomColor(),
-    rand(cost[0], cost[1]),
-    rand(points[0], points[1])
-  );
-}
-
-function blankTokenMap() {
-  const map = new Map();
-  // TODO
-  for (let i in colors) {
-    map.set(colors[i], 0);
-  }
-  return map;
-}
-
-function randomColor() {
-  return colors[rand(0, colors.length - 1)];
-}
-
-function randomColors(n) {
-  const tempColors = [...colors];
-  for (let i = tempColors.length; i > n; i--) {
-    tempColors.splice(rand(0, tempColors.length - 1), 1);
-  }
-  console.log(tempColors);
-  console.log(colors);
-  return tempColors;
-}
-
-function rand(min, max) {
-  return Math.round(Math.random() * (max - min)) + min;
 }
 
 module.exports = {
