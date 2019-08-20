@@ -6,6 +6,20 @@ const {
 } = require("./util.js");
 
 const Timer = require("./timer.js");
+const Player = require("./player");
+const Card = require("./card");
+const Combo = require("./combo");
+const Util = require("./util");
+const { Tokens } = require("./token.js");
+
+let i = 0;
+const State = {
+  PreInit: i++,
+  Start: i++,
+  Round: i++,
+  FinalRound: i++,
+  End: i++
+};
 
 class Game {
   //     `
@@ -24,13 +38,16 @@ class Game {
   constructor(id) {
     this.id = id;
     this.players = [];
-    this.deck = new Map();
-    this.market = new Map();
-    this.tokens = new Map();
+    this.cards = [];
+    this.deck = [];
+    this.market = [];
+    this.tokens = new Tokens();
     this.combos = [];
     this.history = [];
     this.state = State.PreInit;
     this.winners = [];
+    this._currentTurn = 0;
+    this.currentPlayer = undefined;
 
     console.log("Game constructor called");
   }
@@ -41,27 +58,86 @@ class Game {
 
   init() {
     this.deck = generateDeck();
+    this.cards = Array.from(this.deck.values());
     this.market = populateMarket(this.deck);
     this.combos = populateCombos();
-    this.tokens = populateTokens(this.players.length);
+    this.tokens = populateTokens();
     this.timer = new Timer(this.players);
+    this._currentTurn = 0;
+    this.currentPlayer = this.players[0];
 
     console.log("Initialized game");
   }
 
-  turn() {}
+  turn() {
+    this._currentTurn = (this._currentTurn + 1) % this.players.length;
+    this.currentPlayer = this.players[this._currentTurn];
+    console.log(this.tokens.toString());
+  }
 
   applyAction(action) {
-    action.apply(this);
+    if (this.currentPlayer === action.player) {
+      action.apply(this);
+      this.turn();
+    }
+  }
+
+  addTokens(tokens) {
+    this.tokens = this.tokens.add(tokens);
+  }
+
+  removeTokens(tokens) {
+    this.tokens = this.tokens.remove(tokens);
+  }
+
+  hasTokens(tokens) {
+    return this.tokens.has(tokens);
+  }
+
+  printMarket() {
+    for (let i = 0; i < 3; i++) {
+      console.log(`Tier ${i}`);
+      this.market[i].forEach(i => console.log(i.toString()));
+    }
+  }
+
+  getCardById(id) {
+    return Array.from(this.market.values()).map(i =>
+      i.filter(card => card.id === id)
+    )[0];
+  }
+
+  serialize() {
+    return JSON.stringify(this);
+  }
+
+  static deserialize(jsonString) {
+    const game = new Game(0);
+    const obj = JSON.parse(jsonString);
+
+    game.id = obj.id;
+    game.players = obj.players.map(Player.parse);
+    game.cards = Array.from(obj.cards).map(item => item.map(Card.parse));
+    game.deck = Array.from(obj.deck).map(item => item.map(Card.parse));
+    // console.log("MARKET");
+    // console.log(obj.market);
+    // console.log(Array.from(obj.market).map(item => item.map(Card.parse)));
+    game.market = Array.from(obj.market).map(item => item.map(Card.parse));
+    game.tokens = Tokens.parse(obj.tokens);
+    game.combos = obj.combos.map(Combo.parse);
+    game.history = obj.history;
+    game.state = obj.state;
+    game.winners = obj.winners;
+    game._currentTurn = obj._currentTurn;
+    game.currentPlayer = obj.currentPlayer;
+    game.timer = Timer.parse(obj.timer);
+
+    return game;
+  }
+
+  equal(other) {
+    return Util.isEqual(this, other);
   }
 }
-
-const State = {
-  PreInit: Symbol("PreInit"),
-  Start: Symbol("Start"),
-  Round: Symbol("Round"),
-  FinalRound: Symbol("FinalRound"),
-  End: Symbol("End")
-};
 
 module.exports = Game;

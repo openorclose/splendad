@@ -1,6 +1,7 @@
 const Card = require("./card.js");
-const Color = require("./color.js");
+const { Color } = require("./color.js");
 const Combo = require("./combo.js");
+const { Tokens } = require("./token");
 
 const colors = [Color.Red, Color.Green, Color.Blue, Color.White, Color.Black];
 
@@ -25,17 +26,8 @@ const config = {
   ]
 };
 
-function blankTokenMap() {
-  const map = new Map();
-  // TODO
-  for (const i in colors) {
-    map.set(colors[i], 0);
-  }
-  return map;
-}
-
 function rand(min, max) {
-  return Math.round(Math.random() * (max - min)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function randomColor() {
@@ -52,27 +44,31 @@ function randomColors(n) {
 
 function randomCardOfTier(tier) {
   const { points, cost, maxCost } = config.tier[tier - 1];
-  const finalCost = blankTokenMap();
-  const colorTypes = randomColors(rand(1, 4));
-  colorTypes.forEach(color => {
-    const item = finalCost.get(color);
-    finalCost.set(color, item + 1);
+  const arr = [0, 0, 0, 0, 0];
+  const colorTypes = randomColors(rand(1, 4)).map(i => colors.indexOf(i));
+  colorTypes.forEach(i => {
+    arr[i] = 1;
   });
 
   // console.log(finalCost);
   let totalCost = rand(cost[0], cost[1]);
   totalCost -= colorTypes.length;
   while (totalCost > 0) {
-    const color = colorTypes[rand(0, colorTypes.length - 1)];
-    const currValue = finalCost.get(color);
+    const i = colorTypes[rand(0, colorTypes.length - 1)];
+    const currValue = arr[i];
     if (currValue < maxCost) {
-      finalCost.set(color, currValue + 1);
+      arr[i] = arr[i] + 1;
       totalCost -= 1;
     }
 
     if (colorTypes.length === 1 && currValue === maxCost) break;
   }
-  return new Card(tier, randomColor(), finalCost, rand(points[0], points[1]));
+  return new Card(
+    tier,
+    randomColor(),
+    new Tokens(arr),
+    rand(points[0], points[1])
+  );
 }
 
 function randomCard() {
@@ -81,36 +77,74 @@ function randomCard() {
 }
 
 function generateDeck() {
-  const deck = new Map();
-  for (let i = 1; i <= 3; i++) {
-    deck.set(i, []);
+  const deck = [];
+  for (let i = 0; i < 3; i++) {
+    deck.push([]);
     for (let j = 0; j < 20; j++) {
-      deck.get(i).push(randomCardOfTier(i));
+      deck[i].push(randomCardOfTier(i + 1));
     }
   }
   return deck;
 }
 function populateMarket(deck) {
-  const market = new Map();
-  for (let i = 1; i <= 3; i++) {
-    market.set(i, []);
+  const market = [];
+  for (let i = 0; i < 3; i++) {
+    market.push([]);
     for (let j = 0; j < 4; j++) {
-      market.get(i).push(deck.get(i).pop());
+      market[i].push(deck[i].pop());
     }
   }
   return market;
 }
-function populateTokens(numPlayers) {
-  const tokens = blankTokenMap();
-  tokens.forEach((i, j) => tokens.set(j, numPlayers + 1));
-  return tokens;
+function populateTokens() {
+  // tokens.forEach((i, j) => tokens.set(j, numPlayers + 1));
+  return new Tokens(new Array(5).fill(5));
 }
 function populateCombos() {
   const combos = [];
   for (let i = 0; i < 4; i++) {
-    combos.push(new Combo(blankTokenMap(), 3));
+    // TODO fill in tokens
+    combos.push(new Combo(new Tokens(), 3));
   }
   return combos;
+}
+
+function parseTokens(arr) {
+  // const tokenMap = blankTokenMap();
+  // arr.forEach((i, j) => {
+  //   const color = colors[j];
+  //   tokenMap.set(color, i);
+  // });
+  return new Tokens(arr);
+}
+
+function isEqual(a, b) {
+  function isObject(obj) {
+    return typeof obj === "object";
+  }
+
+  function isArray(obj) {
+    return Array.isArray(obj);
+  }
+
+  if (typeof a !== typeof b) return false;
+
+  if (isObject(a) && isObject(b)) {
+    for (let i in a) {
+      if (a.hasOwnProperty(i)) {
+        if (!isEqual(a[i], b[i])) {
+          return false;
+        }
+      }
+    }
+    return true;
+  } else if (isArray(a) && isArray(b)) {
+    return (
+      a.length === b.length && a.every((item, index) => isEqual(item, b[index]))
+    );
+  } else {
+    return a === b;
+  }
 }
 
 module.exports = {
@@ -118,5 +152,6 @@ module.exports = {
   populateMarket,
   populateTokens,
   populateCombos,
-  blankTokenMap
+  parseTokens,
+  isEqual
 };

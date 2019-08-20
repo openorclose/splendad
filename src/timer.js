@@ -8,6 +8,10 @@ class Timer {
   getRemainingTime(player) {
     return 0;
   }
+
+  static parse(obj) {
+    return new Timer(obj.players);
+  }
 }
 
 module.exports = Timer;
