@@ -1,11 +1,10 @@
-let i = 0;
 const Color = {
-  Red: i++,
-  Green: i++,
-  Blue: i++,
-  White: i++,
-  Black: i++,
-  Wildcard: i++
+  Red: "red",
+  Green: "green",
+  Blue: "blue",
+  White: "white",
+  Black: "black",
+  Wildcard: "wild"
 };
 
 const ColorMap = {};
