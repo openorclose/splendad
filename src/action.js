@@ -64,12 +64,13 @@ class BuyAction extends Action {
 
 class ReserveAction extends Action {
   // TODO: Extend for reserving from deck
-  constructor(card, ...args) {
+  constructor(id, ...args) {
     super(...args);
-    card = card;
+    this.id = id;
   }
 
   apply(game) {
+    const card = game.getCardById(this.id);
     if (game.market.includes(card)) {
       if (this.player.reservedCards.length < 3) {
         this.player.reservedCards.push(card);
