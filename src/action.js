@@ -67,14 +67,20 @@ class BuyAction extends Action {
         player.boughtCards.push(card);
         game.market.splice(game.market.indexOf(card));
         return message(`${player.name} bought a card from the market`);
+      } else {
+        return error("Could not afford targeted card");
       }
     } else if (player.reservedCards.includes(card)) {
       if (player.canAfford(card)) {
         player.boughtCards.push(card);
         player.reservedCards.splice(player.reservedCards.indexOf(card));
         return message(`${player.name} bought a card from their reserve`);
+      } else {
+        return error("Could not afford targeted card");
       }
     }
+
+    return error("Targeted card not found");
   }
 }
 
@@ -88,14 +94,17 @@ class ReserveAction extends Action {
   apply(game) {
     const player = game.getPlayerById(this.playerId);
     const card = game.getCardById(this.cardId);
-    if (game.market.includes(card)) {
+    if (game.hasCardInMarket(card)) {
       if (player.reservedCards.length < 3) {
-        player.reservedCards.push(card);
-        game.market.splice(game.market.indexOf(card));
+        player.reserveCard(card);
+        game.removeCard(card);
+        return message(`${player.name} reserved a card`);
+      } else {
+        return error("Cannot have more than 3 cards reserved");
       }
     }
 
-    return message(`${player.name} reserved a card`);
+    return error("Target card not in market");
   }
 }
 

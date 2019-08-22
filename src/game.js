@@ -79,7 +79,7 @@ class Game {
     if (this.currentPlayer.id === action.playerId) {
       const message = action.apply(this);
       if (message.error) {
-        return message.error;
+        return message;
       }
       this.turn();
       return message;
@@ -105,11 +105,39 @@ class Game {
     }
   }
 
+  removeCardById(id) {
+    return this.removeCard(this.getCardById(id));
+  }
+
+  removeCard(card) {
+    let found = false;
+    if (this.deck[card.tier - 1].includes(card)) {
+      const index = this.deck[card.tier - 1].indexOf(card);
+      this.deck[card.tier - 1].splice(index, 1);
+      found = true;
+    }
+    if (this.market[card.tier - 1].includes(card)) {
+      const index = this.market[card.tier - 1].indexOf(card);
+      this.market[card.tier - 1].splice(index, 1);
+      found = true;
+    }
+    if (!found) throw new Error("Attempted removal of a card not in deck");
+  }
+
   getCardById(id) {
     const marketCard = Array.from(this.market.values()).map(i =>
-      i.filter(card => card.id === id)
-    )[0];
-    return marketCard;
+      i.filter(card => card.id == id)
+    );
+    // TODO: debug Buy action
+    return marketCard.filter(i => i.length === 1)[0][0];
+  }
+
+  hasCard(card) {
+    return this.deck.find(i => i.includes(card)) !== -1;
+  }
+
+  hasCardInMarket(card) {
+    return this.market.find(i => i.includes(card)) !== -1;
   }
 
   serialize() {
@@ -145,7 +173,7 @@ class Game {
   }
 
   getPlayerById(id) {
-    return this.players.filter(p => p.id === id)[0];
+    return this.players.filter(p => p.id == id)[0];
   }
 }
 
