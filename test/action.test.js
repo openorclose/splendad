@@ -7,14 +7,14 @@ test("draw tokens", () => {
   let player = game.players[0];
   game.applyAction(
     new Actions.TokenAction(
-      new Tokens([1, 1, 1, 0, 0]),
+      new Tokens([1, 1, 1, 0, 0, 0]),
       new Tokens(),
       game.id,
       player
     )
   );
-  expect(game.tokens).toStrictEqual(new Tokens([4, 4, 4, 5, 5]));
-  expect(player.tokens).toStrictEqual(new Tokens([1, 1, 1, 0, 0]));
+  expect(game.tokens).toStrictEqual(new Tokens([4, 4, 4, 5, 5, 5]));
+  expect(player.tokens).toStrictEqual(new Tokens([1, 1, 1, 0, 0, 0]));
 });
 
 test("draw tokens when empty", () => {

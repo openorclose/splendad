@@ -17,14 +17,21 @@ class Token {
 class Tokens {
   constructor(array) {
     if (!array || array.length === 0) {
-      return new Tokens([0, 0, 0, 0, 0]);
+      return new Tokens([0, 0, 0, 0, 0, 0]);
     }
 
-    if (array.length !== 5) {
+    if (array.length !== 6) {
       throw new Exceptions.InvalidTokensFormatException();
     }
     this.array = array;
-    [this.red, this.green, this.blue, this.white, this.black] = array;
+    [
+      this.red,
+      this.green,
+      this.blue,
+      this.white,
+      this.black,
+      this.wild
+    ] = array;
   }
 
   add(tokens) {
@@ -63,7 +70,7 @@ class Tokens {
   }
 
   toString() {
-    const cols = "R,G,B,W,K".split(",");
+    const cols = "R,G,B,W,K,*".split(",");
     return this.array
       .map((item, index) => [item, index])
       .filter(item => item[0] > 0)

@@ -1,6 +1,6 @@
 const { Tokens } = require("../src/token");
-let t = new Tokens([1, 2, 3, 4, 5]);
-const one = new Tokens([1, 1, 1, 1, 1]);
+let t = new Tokens([1, 2, 3, 4, 5, 6]);
+const one = new Tokens([1, 1, 1, 1, 1, 1]);
 const empty = new Tokens();
 
 /**
@@ -23,12 +23,12 @@ function addArray(a, b) {
 
 test("equality", () => {
   expect(t).toStrictEqual(t);
-  expect(t).toStrictEqual(new Tokens([1, 2, 3, 4, 5]));
+  expect(t).toStrictEqual(new Tokens([1, 2, 3, 4, 5, 6]));
 });
 
 test("add/removing tokens", () => {
-  expect(t.remove(one)).toStrictEqual(new Tokens([0, 1, 2, 3, 4]));
-  expect(t.add(one)).toStrictEqual(new Tokens([2, 3, 4, 5, 6]));
+  expect(t.remove(one)).toStrictEqual(new Tokens([0, 1, 2, 3, 4, 5]));
+  expect(t.add(one)).toStrictEqual(new Tokens([2, 3, 4, 5, 6, 7]));
 
   for (let i = 0; i < 100; i++) {
     const a = randArray(5, 5);

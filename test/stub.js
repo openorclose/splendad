@@ -36,7 +36,7 @@ class GameStub extends Game {
   }
 
   populateTokens() {
-    return new Tokens([5, 5, 5, 5, 5]);
+    return new Tokens([5, 5, 5, 5, 5, 5]);
   }
 }
 

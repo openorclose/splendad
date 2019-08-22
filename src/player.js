@@ -32,6 +32,15 @@ class Player {
     return this.hasTokens(card.cost);
   }
 
+  addCard(card) {
+    this.boughtCards.push(card);
+  }
+
+  reserveCard(card) {
+    this.reservedCards.push(card);
+    this.tokens = this.tokens.add(new Tokens([0, 0, 0, 0, 0, 1]));
+  }
+
   static parse(obj) {
     const player = new Player(obj.id, obj.name);
     player.boughtCards = obj.boughtCards.map(Card.parse);

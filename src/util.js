@@ -44,7 +44,7 @@ function randomColors(n) {
 
 function randomCardOfTier(tier) {
   const { points, cost, maxCost } = config.tier[tier - 1];
-  const arr = [0, 0, 0, 0, 0];
+  const arr = [0, 0, 0, 0, 0, 0];
   const colorTypes = randomColors(rand(1, 4)).map(i => colors.indexOf(i));
   colorTypes.forEach(i => {
     arr[i] = 1;
@@ -98,7 +98,7 @@ function populateMarket(deck) {
 }
 function populateTokens() {
   // tokens.forEach((i, j) => tokens.set(j, numPlayers + 1));
-  return new Tokens(new Array(5).fill(5));
+  return new Tokens(new Array(6).fill(5));
 }
 function populateCombos() {
   const combos = [];

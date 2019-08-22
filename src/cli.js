@@ -66,7 +66,7 @@ class Renderer {
 function parseAction(ans, game, player) {
   // Draw tokens", "Buy card", "Reserve card", "Pass
   if (ans.action === "Draw tokens") {
-    const tokensArray = [0, 0, 0, 0, 0];
+    const tokensArray = [0, 0, 0, 0, 0, 0];
     const letters = "RGBWK";
     ans.tokens
       .toUpperCase()
