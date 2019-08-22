@@ -5,21 +5,18 @@ const Player = require("./player");
 const Action = require("./action");
 const { Tokens } = require("./token");
 
-const formattedTokens = [
-  chalk.red("Red"),
-  chalk.green("Green"),
-  chalk.blue("Blue"),
-  chalk.white("White"),
-  chalk.black("Black")
-];
-
 const tokenFormatters = [
   chalk.red,
   chalk.green,
   chalk.blue,
   chalk.white,
-  chalk.black
+  chalk.gray,
+  chalk.yellow
 ];
+
+const formattedTokens = "Red Green Blue White Black"
+  .split(" ")
+  .map((i, index) => tokenFormatters[index](i));
 
 function main() {
   const game = new Game();
@@ -31,11 +28,11 @@ function main() {
 
 class Renderer {
   static renderTokens(tokens) {
-    return [chalk.red, chalk.green, chalk.blue, chalk.white, chalk.black]
+    return `[${tokenFormatters
       .map((i, index) => {
         return i(tokens.array[index]);
       })
-      .join(" ");
+      .join(" ")}]`;
   }
 
   static buyChoices(game, player) {
@@ -84,12 +81,14 @@ function parseAction(ans, game, player) {
     );
   }
 
+  const cardIdRegex = /^\[(\d+)\]/;
+  const cardId = cardIdRegex.exec(ans.cardId)[1];
   if (ans.action === "Buy card") {
-    return new Action.BuyAction(ans.cardId, game.id, player.id);
+    return new Action.BuyAction(cardId, game.id, player.id);
   }
 
   if (ans.action === "Reserve card") {
-    return new Action.ReserveAction(ans.cardId, game.id, player.id);
+    return new Action.ReserveAction(cardId, game.id, player.id);
   }
 
   return new Action.PassAction(game.id, player.id);
@@ -110,11 +109,22 @@ function turn(game) {
     {
       type: "input",
       name: "tokens",
-      message: `Tokens (type up to 3 letters): ${tokenFormatters
-        .map((i, index) => i("RGBWK"[index]))
+      message: `Tokens (type up to 3 letters) ${"RGBWK"
+        .split("")
+        .map((i, index) => tokenFormatters[index](i))
         .join("")}`,
       choices: formattedTokens,
-      when: answers => answers.action === "Draw tokens"
+      when: answers => answers.action === "Draw tokens",
+      transformer: input => {
+        const letters = "RGBWK";
+        return letters
+          .split("")
+          .reduce(
+            (acc, item, index) =>
+              acc.split(item).join(tokenFormatters[index](item)),
+            input.toUpperCase()
+          );
+      }
     },
     {
       type: "list",
@@ -132,13 +142,18 @@ function turn(game) {
     }
   ];
 
-  console.log(chalk.yellow(`Player ${game.currentPlayer.name}'s turn`));
-  console.log("Tokens: ");
-  console.log(Renderer.renderTokens(game.currentPlayer.tokens));
+  console.log();
+  console.log(
+    chalk.yellow(`${game.currentPlayer.name}'s turn`),
+    Renderer.renderTokens(game.currentPlayer.tokens)
+  );
+  console.log("Available tokens:", Renderer.renderTokens(game.tokens));
   return inquirer.prompt(questions).then(ans => {
     const action = parseAction(ans, game, game.currentPlayer);
     const message = game.applyAction(action);
-    console.log(message);
+    console.log(
+      message.error ? chalk.red(message.error) : chalk.green(message.message)
+    );
     turn(game);
   });
 }
