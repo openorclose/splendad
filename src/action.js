@@ -1,7 +1,7 @@
 class Action {
-  constructor(gameId, player, timestamp = Date.now()) {
+  constructor(gameId, playerId, timestamp = Date.now()) {
     this.gameId = gameId;
-    this.player = player;
+    this.playerId = playerId;
     this.timestamp = timestamp;
   }
 }
@@ -12,25 +12,24 @@ class TokenAction extends Action {
     this.tokens = tokens;
     this.discardedTokens = discardedTokens;
 
-    if (this.tokens.total() > 3)
-      throw new Error("No more than 3 tokens can be drawn");
-    if (this.tokens.total() === 3 && this.tokens.max() !== 1)
-      throw new Error("Only 1 per color can be drawn when drawing 3 tokens");
+    // if (this.tokens.total() > 3)
+    // throw new Error("No more than 3 tokens can be drawn");
+    // if (this.tokens.total() === 3 && this.tokens.max() !== 1)
+    // throw new Error("Only 1 per color can be drawn when drawing 3 tokens");
   }
 
   apply(game) {
+    const player = game.getPlayerById(this.playerId);
     if (game.hasTokens(this.tokens)) {
       // TODO: Check for remaining pool for 2 token draws
       game.removeTokens(this.tokens);
-      this.player.addTokens(this.tokens);
-      console.log(`${this.player.name} drew ${this.tokens} tokens`);
+      player.addTokens(this.tokens);
+      return `${player.name} drew ${this.tokens} tokens`;
     }
     if (!this.discardedTokens.isEmpty()) {
-      this.player.removeTokens(this.discardedTokens);
+      player.removeTokens(this.discardedTokens);
       game.addTokens(this.discardedTokens);
-      console.log(
-        `${this.player.name} discarded ${this.discardedTokens} tokens`
-      );
+      return `${player.name} discarded ${this.discardedTokens} tokens`;
     }
   }
 }
@@ -38,27 +37,26 @@ class TokenAction extends Action {
 class BuyAction extends Action {
   constructor(id, ...args) {
     super(...args);
-    this.id = id;
+    this.cardId = id;
     // card = card;
   }
 
   apply(game) {
-    const card = game.getCardById(id);
+    const player = game.getPlayerById(this.playerId);
+    const card = game.getCardById(this.cardId);
     if (game.market.includes(card)) {
-      if (this.player.canAfford(card)) {
-        this.player.boughtCards.push(card);
+      if (player.canAfford(card)) {
+        player.boughtCards.push(card);
         game.market.splice(game.market.indexOf(card));
+        return `${player.name} bought a card from the market`;
       }
-    } else if (this.player.reservedCards.includes(card)) {
-      if (this.player.canAfford(card)) {
-        this.player.boughtCards.push(card);
-        this.player.reservedCards.splice(
-          this.player.reservedCards.indexOf(card)
-        );
+    } else if (player.reservedCards.includes(card)) {
+      if (player.canAfford(card)) {
+        player.boughtCards.push(card);
+        player.reservedCards.splice(player.reservedCards.indexOf(card));
+        return `${player.name} bought a card from their reserve`;
       }
     }
-
-    console.log(`${this.player.name} bought a card`);
   }
 }
 
@@ -66,25 +64,27 @@ class ReserveAction extends Action {
   // TODO: Extend for reserving from deck
   constructor(id, ...args) {
     super(...args);
-    this.id = id;
+    this.cardId = id;
   }
 
   apply(game) {
-    const card = game.getCardById(this.id);
+    const player = game.getPlayerById(this.playerId);
+    const card = game.getCardById(this.cardId);
     if (game.market.includes(card)) {
-      if (this.player.reservedCards.length < 3) {
-        this.player.reservedCards.push(card);
+      if (player.reservedCards.length < 3) {
+        player.reservedCards.push(card);
         game.market.splice(game.market.indexOf(card));
       }
     }
 
-    console.log(`${this.player.name} reserved a card`);
+    return `${player.name} reserved a card`;
   }
 }
 
 class PassAction extends Action {
-  apply() {
-    console.log(`${this.player.name} passed their turn`);
+  apply(game) {
+    const player = game.getPlayerById(this.playerId);
+    return `${player.name} passed their turn`;
   }
 }
 

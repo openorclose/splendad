@@ -72,13 +72,16 @@ class Game {
   turn() {
     this._currentTurn = (this._currentTurn + 1) % this.players.length;
     this.currentPlayer = this.players[this._currentTurn];
-    console.log(this.tokens.toString());
+    // console.log(this.tokens.toString());
   }
 
   applyAction(action) {
-    if (this.currentPlayer === action.player) {
-      action.apply(this);
+    if (this.currentPlayer.id === action.playerId) {
+      const message = action.apply(this);
+      // TODO: extend message to be an object with optional error field
+      // TODO: dont skip current player turn if invalid/fail action
       this.turn();
+      return message;
     }
   }
 
@@ -102,9 +105,10 @@ class Game {
   }
 
   getCardById(id) {
-    return Array.from(this.market.values()).map(i =>
+    const marketCard = Array.from(this.market.values()).map(i =>
       i.filter(card => card.id === id)
     )[0];
+    return marketCard;
   }
 
   serialize() {
@@ -135,8 +139,12 @@ class Game {
     return game;
   }
 
-  equal(other) {
-    return Util.isEqual(this, other);
+  isEnded() {
+    return this.state === State.End;
+  }
+
+  getPlayerById(id) {
+    return this.players.filter(p => p.id === id)[0];
   }
 }
 
