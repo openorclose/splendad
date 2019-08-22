@@ -78,8 +78,9 @@ class Game {
   applyAction(action) {
     if (this.currentPlayer.id === action.playerId) {
       const message = action.apply(this);
-      // TODO: extend message to be an object with optional error field
-      // TODO: dont skip current player turn if invalid/fail action
+      if (message.error) {
+        return message.error;
+      }
       this.turn();
       return message;
     }
