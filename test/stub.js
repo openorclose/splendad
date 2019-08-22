@@ -2,6 +2,10 @@ const Game = require("../src/game");
 const Player = require("../src/player");
 const Timer = require("../src/timer");
 const { Tokens } = require("../src/token");
+
+/**
+ * Game stub containing no cards, 4 players, and 5 tokens of each color
+ */
 class GameStub extends Game {
   constructor() {
     super(0);
