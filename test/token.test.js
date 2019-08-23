@@ -31,8 +31,8 @@ test("add/removing tokens", () => {
   expect(t.add(one)).toStrictEqual(new Tokens([2, 3, 4, 5, 6, 7]));
 
   for (let i = 0; i < 100; i++) {
-    const a = randArray(5, 5);
-    const b = randArray(5, 5);
+    const a = randArray(6, 5);
+    const b = randArray(6, 5);
     expect(new Tokens(a).add(new Tokens(b))).toStrictEqual(
       new Tokens(addArray(a, b))
     );

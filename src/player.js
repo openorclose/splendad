@@ -28,14 +28,35 @@ class Player {
     return this.tokens.has(tokens);
   }
 
+  getBonusTokens() {
+    function caps(s) {
+      return s[0].toUpperCase() + s.slice(1);
+    }
+    let bonusTokens = new Tokens();
+    this.boughtCards.forEach(c => {
+      bonusTokens = bonusTokens.add(Token[caps(c.color)]);
+    });
+    return bonusTokens;
+  }
+
+  getEffectiveTokens() {
+    return this.tokens.add(this.getBonusTokens());
+  }
+
   canAfford(card) {
-    return this.hasTokens(card.cost);
+    return this.getEffectiveTokens().has(card.cost);
   }
 
   buyCard(card) {
-    this.tokens = this.tokens.remove(card.cost);
+    const bonus = this.getBonusTokens();
+    const discountedCost = new Tokens(
+      card.cost.array.map((cost, index) =>
+        Math.max(0, cost - bonus.array[index])
+      )
+    );
+    this.tokens = this.tokens.remove(discountedCost);
     this.addCard(card);
-    return card.cost;
+    return discountedCost;
   }
 
   addCard(card) {

@@ -2,6 +2,7 @@ const Game = require("../src/game");
 const Player = require("../src/player");
 const Timer = require("../src/timer");
 const { Tokens } = require("../src/token");
+const Card = require("../src/card");
 
 /**
  * Game stub containing no cards, 4 players, and 5 tokens of each color
@@ -40,7 +41,11 @@ class GameStub extends Game {
   }
 }
 
-class CardStub {}
+class CardStub {
+  static getTestCard(id = 1, tier = 1) {
+    return new Card(tier, "red", new Tokens([3, 0, 0, 0, 0, 0]), 1, id);
+  }
+}
 
 class PlayerStub extends Player {
   constructor() {

@@ -58,7 +58,7 @@ class Game {
 
   init() {
     this.deck = generateDeck();
-    this.cards = Array.from(this.deck.values());
+    this.cards = this.deck.map(i => Array.from(i));
     this.market = populateMarket(this.deck);
     this.combos = populateCombos();
     this.tokens = populateTokens();
@@ -137,11 +137,10 @@ class Game {
   }
 
   getCardById(id) {
-    const marketCard = Array.from(this.market.values()).map(i =>
-      i.filter(card => card.id == id)
-    );
-    // TODO: debug Buy action
-    return marketCard.filter(i => i.length === 1)[0][0];
+    const marketCard = this.cards
+      .reduce((acc, item) => acc.concat(item), [])
+      .filter(card => card.id == id);
+    return marketCard[0];
   }
 
   hasCard(card) {
@@ -149,7 +148,7 @@ class Game {
   }
 
   hasCardInMarket(card) {
-    return this.market.find(i => i.includes(card)) !== -1;
+    return this.market.some(i => i.includes(card));
   }
 
   serialize() {

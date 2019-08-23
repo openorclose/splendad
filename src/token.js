@@ -27,15 +27,27 @@ class Tokens {
   }
 
   has(tokens) {
-    return this.array.every((item, index) => item >= tokens.array[index]);
+    return (
+      this.array.slice(0, 5).reduce((acc, myTokens, index) => {
+        const diff = Math.max(0, tokens.array[index] - myTokens);
+        return acc + diff;
+      }, 0) <= this.array[5]
+    );
   }
 
   remove(tokens) {
     if (!this.has(tokens)) {
       throw new Error("Negative tokens");
     }
+    const overflow = this.array.slice(0, 5).reduce((acc, myTokens, index) => {
+      const diff = Math.max(0, tokens.array[index] - myTokens);
+      return acc + diff;
+    }, 0);
     return new Tokens(
-      this.array.map((item, index) => item - tokens.array[index])
+      this.array
+        .slice(0, 5)
+        .map((item, index) => Math.max(0, item - tokens.array[index]))
+        .concat([this.array[5] - tokens.array[5] - overflow])
     );
   }
 

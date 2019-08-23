@@ -35,13 +35,17 @@ class TokenAction extends Action {
   }
 
   apply(game) {
+    function checkRemainingPool() {
+      return this.tokens.array.every((item, index) => {
+        return item === 2 ? game.tokens.array[index] >= 4 : true;
+      });
+    }
     const player = game.getPlayerById(this.playerId);
     if (this.tokens.total() > 3)
       return error("No more than 3 tokens can be drawn");
     if (this.tokens.total() === 3 && this.tokens.max() !== 1)
       return error("Only 1 per color can be drawn when drawing 3 tokens");
-    if (game.hasTokens(this.tokens)) {
-      // TODO: Check for remaining pool for 2 token draws
+    if (game.hasTokens(this.tokens) && checkRemainingPool.call(this)) {
       game.removeTokens(this.tokens);
       player.addTokens(this.tokens);
       return message(`${player.name} drew ${this.tokens} tokens`);
@@ -77,7 +81,8 @@ class BuyAction extends Action {
       }
     } else if (player.reservedCards.includes(card)) {
       if (player.canAfford(card)) {
-        player.boughtCards.push(card);
+        const tokens = player.buyCard(card);
+        game.addTokens(tokens);
         player.reservedCards.splice(player.reservedCards.indexOf(card));
         return message(`${player.name} bought a card from their reserve`);
       } else {
