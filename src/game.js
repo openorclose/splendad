@@ -124,6 +124,18 @@ class Game {
     if (!found) throw new Error("Attempted removal of a card not in deck");
   }
 
+  removeCardFromMarket(card) {
+    if (this.hasCardInMarket(card)) {
+      const tier = card.tier;
+      const index = this.market[tier - 1].indexOf(card);
+      this.market[tier - 1].splice(index, 1);
+      const newCard = this.deck[tier - 1].pop();
+      if (newCard) this.market[tier - 1].push(newCard);
+    } else {
+      throw new Error("Card not in market");
+    }
+  }
+
   getCardById(id) {
     const marketCard = Array.from(this.market.values()).map(i =>
       i.filter(card => card.id == id)

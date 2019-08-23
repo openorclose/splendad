@@ -2,7 +2,7 @@ const { blankTokenMap } = require("./util.js");
 const Exceptions = require("./exceptions.js");
 const Card = require("./card");
 const Combo = require("./combo");
-const { Tokens } = require("./token.js");
+const { Tokens, Token } = require("./token.js");
 
 class Player {
   constructor(id, name) {
@@ -32,13 +32,18 @@ class Player {
     return this.hasTokens(card.cost);
   }
 
+  buyCard(card) {
+    this.tokens = this.tokens.remove(card.cost);
+    this.addCard(card);
+    return card.cost;
+  }
+
   addCard(card) {
     this.boughtCards.push(card);
   }
 
   reserveCard(card) {
     this.reservedCards.push(card);
-    this.tokens = this.tokens.add(new Tokens([0, 0, 0, 0, 0, 1]));
   }
 
   static parse(obj) {

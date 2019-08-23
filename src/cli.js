@@ -48,6 +48,10 @@ class Renderer {
     );
   }
 
+  static ownedCards(player) {
+    return player.boughtCards.map(this.renderCard).join("\n");
+  }
+
   static renderCard(card) {
     function stars() {
       let out = "";
@@ -62,6 +66,10 @@ class Renderer {
 
 function parseAction(ans, game, player) {
   // Draw tokens", "Buy card", "Reserve card", "Pass
+
+  if (ans.action === "Pass") {
+    return new Action.PassAction(game.id, player.id);
+  }
   if (ans.action === "Draw tokens") {
     const tokensArray = [0, 0, 0, 0, 0, 0];
     const letters = "RGBWK";
@@ -147,6 +155,8 @@ function turn(game) {
     chalk.yellow(`${game.currentPlayer.name}'s turn`),
     Renderer.renderTokens(game.currentPlayer.tokens)
   );
+  console.log(chalk.yellow("Owned cards"));
+  console.log(Renderer.ownedCards(game.currentPlayer));
   console.log("Available tokens:", Renderer.renderTokens(game.tokens));
   return inquirer.prompt(questions).then(ans => {
     const action = parseAction(ans, game, game.currentPlayer);

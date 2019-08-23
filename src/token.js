@@ -1,19 +1,5 @@
 const Exceptions = require("./exceptions.js");
 
-class Token {
-  constructor(color) {
-    this.color = color;
-  }
-
-  toString() {
-    return this.color.toString();
-  }
-
-  static parse(obj) {
-    return new Token(obj.color);
-  }
-}
-
 class Tokens {
   constructor(array) {
     if (!array || array.length === 0) {
@@ -46,7 +32,7 @@ class Tokens {
 
   remove(tokens) {
     if (!this.has(tokens)) {
-      throw new Exceptions.InsufficientTokensException();
+      throw new Error("Negative tokens");
     }
     return new Tokens(
       this.array.map((item, index) => item - tokens.array[index])
@@ -82,5 +68,14 @@ class Tokens {
     return new Tokens(obj.array);
   }
 }
+
+const Token = {
+  Red: new Tokens([1, 0, 0, 0, 0, 0]),
+  Green: new Tokens([0, 1, 0, 0, 0, 0]),
+  Blue: new Tokens([0, 0, 1, 0, 0, 0]),
+  White: new Tokens([0, 0, 0, 1, 0, 0]),
+  Black: new Tokens([0, 0, 0, 0, 1, 0]),
+  Wild: new Tokens([0, 0, 0, 0, 0, 1])
+};
 
 module.exports = { Token, Tokens };

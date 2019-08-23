@@ -1,3 +1,5 @@
+const { Token } = require("./token");
+
 function message(msg) {
   return {
     message: msg
@@ -43,6 +45,8 @@ class TokenAction extends Action {
       game.removeTokens(this.tokens);
       player.addTokens(this.tokens);
       return message(`${player.name} drew ${this.tokens} tokens`);
+    } else {
+      return error("Not enough tokens to draw");
     }
     if (!this.discardedTokens.isEmpty()) {
       player.removeTokens(this.discardedTokens);
@@ -62,10 +66,11 @@ class BuyAction extends Action {
   apply(game) {
     const player = game.getPlayerById(this.playerId);
     const card = game.getCardById(this.cardId);
-    if (game.market.includes(card)) {
+    if (game.hasCardInMarket(card)) {
       if (player.canAfford(card)) {
-        player.boughtCards.push(card);
-        game.market.splice(game.market.indexOf(card));
+        const tokens = player.buyCard(card);
+        game.removeCardFromMarket(card);
+        game.addTokens(tokens);
         return message(`${player.name} bought a card from the market`);
       } else {
         return error("Could not afford targeted card");
@@ -96,8 +101,12 @@ class ReserveAction extends Action {
     const card = game.getCardById(this.cardId);
     if (game.hasCardInMarket(card)) {
       if (player.reservedCards.length < 3) {
+        game.removeCardFromMarket(card);
         player.reserveCard(card);
-        game.removeCard(card);
+        if (game.hasTokens(Token.Wild)) {
+          game.removeTokens(Token.Wild);
+          player.addTokens(Token.Wild);
+        }
         return message(`${player.name} reserved a card`);
       } else {
         return error("Cannot have more than 3 cards reserved");
